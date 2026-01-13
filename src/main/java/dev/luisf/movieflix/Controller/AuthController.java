@@ -9,12 +9,14 @@ import dev.luisf.movieflix.Controller.request.UserRequest;
 import dev.luisf.movieflix.Controller.response.UserResponse;
 import dev.luisf.movieflix.config.TokenService;
 import dev.luisf.movieflix.entity.User;
+import dev.luisf.movieflix.exception.UsernameOrPasswordInvalidException;
 import dev.luisf.movieflix.mapper.UserMapper;
 import dev.luisf.movieflix.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,13 +41,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login (@RequestBody LoginRequest request){
-        UsernamePasswordAuthenticationToken userAndPass = new UsernamePasswordAuthenticationToken(request.email(), request.password());
-        Authentication authenticate = authenticationManager.authenticate(userAndPass);
+        try {
+            UsernamePasswordAuthenticationToken userAndPass = new UsernamePasswordAuthenticationToken(request.email(), request.password());
+            Authentication authenticate = authenticationManager.authenticate(userAndPass);
 
-        User user = (User) authenticate.getPrincipal();
+            User user = (User) authenticate.getPrincipal();
 
-        String token = tokenService.generateToken(user);
+            String token = tokenService.generateToken(user);
 
-        return ResponseEntity.ok(new LoginResponse(token));
+            return ResponseEntity.ok(new LoginResponse(token));
+        } catch (BadCredentialsException e){
+            throw new UsernameOrPasswordInvalidException("Nome de usuario ou senha inválido");
+        }
     }
 }
