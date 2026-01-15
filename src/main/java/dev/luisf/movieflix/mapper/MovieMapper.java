@@ -46,7 +46,7 @@ public class MovieMapper {
 
         return MovieResponse.builder()
                 .id(movie.getId())
-                .tile(movie.getTitle())
+                .title(movie.getTitle())
                 .description(movie.getDescription())
                 .rating(movie.getRating())
                 .releaseDate(movie.getReleaseDate())
